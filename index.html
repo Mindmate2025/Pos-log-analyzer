@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>POS Log Analyzer v1.0</title>
+  <style>
+    :root{
+      --bg:#0b1220;--panel:#0f172a;--muted:#94a3b8;--text:#e5e7eb;--accent:#60a5fa;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--chip:#1f2937;--border:#334155;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(160deg,#0b1220 0%,#111827 100%);color:var(--text)}
+    header{position:sticky;top:0;padding:16px;border-bottom:1px solid var(--border);backdrop-filter:blur(8px);background:linear-gradient(160deg,#0b1220ee,#111827ee)}
+    h1{margin:0;font-size:20px;letter-spacing:.2px}
+    main{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start;padding:16px}
+    @media (max-width:1000px){main{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,#0f172a,#0b1220);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 30px #00000055}
+    .card h2{font-size:16px;margin:0 0 8px 0;color:#dbeafe}
+    .card .body{padding:14px}
+    .drop{border:1px dashed #475569;border-radius:14px;padding:14px;text-align:center;color:var(--muted);cursor:pointer}
+    .drop:hover{border-color:#64748b;color:#cbd5e1}
+    .controls label{display:block;font-size:12px;color:var(--muted);margin-top:10px}
+    .controls input[type="text"], .controls select{width:100%;padding:10px 12px;background:#0b1324;color:var(--text);border:1px solid var(--border);border-radius:12px;outline:none}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .chip{background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px;display:inline-flex;gap:8px;align-items:center}
+    .chip input{accent-color:var(--accent)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#0b1324;color:#cbd5e1;cursor:pointer}
+    .btn.primary{background:#0b3a73;border-color:#1e40af}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;color:#a3a3a3;font-size:12px}
+    .meta .tag{background:#0b1324;border:1px solid var(--border);padding:4px 8px;border-radius:999px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-bottom:1px solid #1f2937;font-size:13px}
+    th{color:#cbd5e1;text-align:left;position:sticky;top:0;background:#0f172a;z-index:1}
+    tbody tr:hover{background:#0d1528}
+    .kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .kpi .box{background:#0b1324;border:1px solid var(--border);padding:12px;border-radius:14px}
+    .kpi .val{font-size:18px;font-weight:700}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--border);font-size:11px}
+    .pill.ok{color:#10b981;border-color:#10b98122;background:#10b98111}
+    .pill.bad{color:#ef4444;border-color:#ef444422;background:#ef444411}
+    footer{padding:20px;color:#94a3b8;text-align:center}
+    .hide{display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>POS Log Analyzer v1.0 • Importa, filtra e analizza i log di cassa</h1>
+  </header>
+  <main>
+    <!-- Left: Controls -->
+    <section class="card">
+      <div class="body">
+        <h2>1) Importa file log</h2>
+        <div id="drop" class="drop">
+          Trascina qui il file <b>.log</b> oppure <label for="file" class="btn" style="margin:8px auto 0;">Scegli file…</label>
+          <input id="file" type="file" accept=".log,.txt" class="hide" />
+        </div>
+        <div class="meta" id="meta"></div>
+        <hr style="border-color:#1f2937;margin:14px 0;">
+        <h2>2) Filtri</h2>
+        <div class="controls">
+          <label>Operatore</label>
+          <select id="operatorSelect" multiple size="5"></select>
+          <label style="margin-top:12px">Tipi di operazione</label>
+          <div id="typeChips" class="chips"></div>
+          <label>Cerca nelle note</label>
+          <input id="searchInput" type="text" placeholder="es. tavolo, BANCO, articolo, conto…" />
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button id="btnReset" class="btn">Azzera filtri</button>
+            <button id="btnExport" class="btn">Esporta CSV</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Results -->
+    <section class="card">
+      <div class="body">
+        <h2>Risultati & Statistiche</h2>
+        <div class="kpi" id="kpi">
+          <div class="box"><div class="label">Eventi rilevati</div><div class="val" id="kpiEvents">0</div></div>
+          <div class="box"><div class="label">Totale Scontrini (€)</div><div class="val" id="kpiScontrini">0.00</div></div>
+          <div class="box"><div class="label">Totale Mov. Gestionali (€)</div><div class="val" id="kpiGestionali">0.00</div></div>
+          <div class="box"><div class="label">Preconti (€)</div><div class="val" id="kpiPreconti">0.00</div></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="meta" id="statsOperators"></div>
+        </div>
+
+        <div style="margin-top:14px;overflow:auto;max-height:58vh">
+          <table>
+            <thead>
+              <tr>
+                <th>Data/Ora</th>
+                <th>Operatore</th>
+                <th>Tipo</th>
+                <th>Importo</th>
+                <th>Dettagli</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    Suggerimento: seleziona più operatori tenendo premuto Ctrl/⌘. Clicca sulle chip dei tipi per attivarle/disattivarle.
+  </footer>
+
+<script>
+(function(){
+  const fileInput = document.getElementById('file');
+  const drop = document.getElementById('drop');
+  const tbody = document.getElementById('tbody');
+  const meta = document.getElementById('meta');
+  const typeChips = document.getElementById('typeChips');
+  const operatorSelect = document.getElementById('operatorSelect');
+  const searchInput = document.getElementById('searchInput');
+  const btnReset = document.getElementById('btnReset');
+  const btnExport = document.getElementById('btnExport');
+
+  const kpiEvents = document.getElementById('kpiEvents');
+  const kpiScontrini = document.getElementById('kpiScontrini');
+  const kpiGestionali = document.getElementById('kpiGestionali');
+  const kpiPreconti = document.getElementById('kpiPreconti');
+  const statsOperators = document.getElementById('statsOperators');
+
+  let allEvents = []; // full parsed events
+  let allTypes = new Set();
+  let allOperators = new Set();
+
+  // ---- File handling ----
+  drop.addEventListener('dragover', e=>{e.preventDefault(); drop.style.borderColor = '#93c5fd';});
+  drop.addEventListener('dragleave', ()=>{drop.style.borderColor = '#475569';});
+  drop.addEventListener('drop', e=>{
+    e.preventDefault();drop.style.borderColor = '#475569';
+    if(e.dataTransfer.files && e.dataTransfer.files[0]){
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });fileInput.addEventListener('change', ()=>{
+    if(fileInput.files[0]) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result; 
+      const {events, metaInfo} = parseLog(text);
+      allEvents = events;
+      allTypes = new Set(events.map(e=>e.type));
+      allOperators = new Set(events.map(e=> e.operator || 'Sconosciuto'));
+      renderMeta(metaInfo, file.name);
+      renderFilters();
+      render();
+    };
+    reader.readAsText(file);
+  }
+
+  function renderMeta(metaInfo, fileName){
+    meta.innerHTML = '';
+    const tags = [
+      `File: <b>${escapeHtml(fileName)}</b>`,
+      `Righe: <b>${metaInfo.lines}</b>`,
+      `Eventi rilevati: <b>${metaInfo.events}</b>`
+    ];
+    for(const t of tags){
+      const span = document.createElement('div');
+      span.className = 'tag';
+      span.innerHTML = t;
+      meta.appendChild(span);
+    }
+  }
+
+  function renderFilters(){
+    // Types (chips)
+    typeChips.innerHTML = '';
+    Array.from(allTypes).sort().forEach(t=>{
+      const lbl = document.createElement('label');
+      lbl.className = 'chip';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = true; // default on
+      cb.dataset.type = t;
+      cb.addEventListener('change', render);
+      const text = document.createElement('span');
+      text.textContent = t;
+      lbl.appendChild(cb); lbl.appendChild(text);
+      typeChips.appendChild(lbl);
+    });
+
+    // Operators (multi select)
+    operatorSelect.innerHTML = '';
+    Array.from(allOperators).sort().forEach(op=>{
+      const opt = document.createElement('option');
+      opt.value = op; opt.textContent = op;
+      opt.selected = true; // default include all
+      operatorSelect.appendChild(opt);
+    });
+
+    operatorSelect.addEventListener('change', render);
+    searchInput.addEventListener('input', debounce(render, 200));
+    btnReset.onclick = ()=>{
+      // reset chips
+      [...typeChips.querySelectorAll('input[type="checkbox"]')].forEach(cb=> cb.checked = true);
+      // reset operators
+      [...operatorSelect.options].forEach(o=> o.selected = true);
+      // reset search
+      searchInput.value = '';
+      render();
+    };
+
+    btnExport.onclick = ()=>{
+      const filtered = getFiltered();
+      const csv = toCSV(filtered);
+      const url = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+      const a = document.createElement('a');
+      a.href = url; a.download = 'pos-log-estrazione.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+  }
+
+  function getActiveTypes(){
+    const act = new Set();
+    typeChips.querySelectorAll('input[type="checkbox"]').forEach(cb=>{ if(cb.checked) act.add(cb.dataset.type);});
+    return act;
+  }
+
+  function getSelectedOperators(){
+    return new Set([...operatorSelect.options].filter(o=>o.selected).map(o=>o.value));
+  }
+
+  function getFiltered(){
+    const activeTypes = getActiveTypes();
+    const selectedOps = getSelectedOperators();
+    const term = searchInput.value.trim().toLowerCase();
+    return allEvents.filter(e=>{
+      if(!activeTypes.has(e.type)) return false;
+      if(!selectedOps.has(e.operator || 'Sconosciuto')) return false;
+      if(term){
+        const hay = `${e.type} ${e.operator||''} ${e.note||''}`.toLowerCase();
+        if(!hay.includes(term)) return false;
+      }
+      return true;
+    });
+  }
+
+  function render(){
+    const rows = getFiltered();
+    tbody.innerHTML='';
+    for(const e of rows){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHtml(e.ts)}</td>
+        <td>${escapeHtml(e.operator || 'Sconosciuto')}</td>
+        <td><span class="pill ${pillClass(e.type)}">${escapeHtml(e.type)}</span></td>
+        <td>${fmtMoney(e.amount)}</td>
+        <td>${escapeHtml(e.note || '')}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    // KPIs
+    kpiEvents.textContent = String(rows.length);
+    kpiScontrini.textContent = fmtMoney(sumBy(rows.filter(e=>e.type==='Scontrino fiscale'), 'amount'));
+    kpiGestionali.textContent = fmtMoney(sumBy(rows.filter(e=>e.type==='Movimento gestionale (non fiscale)'), 'amount'));
+    kpiPreconti.textContent = fmtMoney(sumBy(rows.filter(e=>e.type==='Preconto sospeso'), 'amount'));
+
+    // Operator stats (on filtered set)
+    statsOperators.innerHTML = '';
+    const perOp = groupBy(rows, e=>e.operator || 'Sconosciuto');
+    Object.entries(perOp).forEach(([op, list])=>{
+      const countByType = groupBy(list, e=>e.type);
+      const parts = Object.entries(countByType).map(([t, arr])=>`${t}: <b>${arr.length}</b>`);
+      const tot = sumBy(list, 'amount');
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.innerHTML = `<b>${escapeHtml(op)}</b> — eventi: <b>${list.length}</b>, importo: <b>€ ${fmtMoneyNum(tot)}</b><br><span style="font-size:11px;color:#9ca3af">${parts.join(' · ')}</span>`;
+      statsOperators.appendChild(tag);
+    });
+  }
+
+  function pillClass(type){
+    if(type.includes('Annulla')||type.includes('Annullo')) return 'bad';
+    if(type.includes('Scontrino')||type.includes('Movimento')||type.includes('Preconto')) return 'ok';
+    return '';
+  }
+
+  // ---- Parser ----
+  function parseLog(text){
+    const lines = text.split(/\r?\n/);
+    const events = [];
+
+    let currentOperator = null; // e.g., "SUPERVISORE"
+    let header = resetHeader();
+    let lastPaymentTotal = null; // from "AVVIO PAGAMENTO CONTANTI - Totale X"
+
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line) continue;
+      const m = line.match(/^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d{3})?);(?:(?<who>[^;]*);)?\s*(?<msg>.*)$/);
+      if(!m) continue;
+      const ts = m.groups.ts;
+      const who = (m.groups.who||'').trim();
+      const msg = (m.groups.msg||'').trim();
+
+      // update operator context
+      if(who){
+        currentOperator = who.replace(/\s*-\s*\d+$/,'').trim() || currentOperator;
+      }
+      const logIn = msg.match(/CASSIERE\s+(.+?)\s+LOGGATO/i);
+      if(logIn){ currentOperator = logIn[1].trim(); }
+
+      // capture header context from 7/1/1 lines
+      const tav = msg.match(/7\/1\/1\/Tavolo:\s*([^/]+)/);
+      if(tav){ header.tavolo = tav[1].trim(); }
+      const sala = msg.match(/7\/1\/1\/Sala:\s*([^/]+)/);
+      if(sala){ header.sala = sala[1].trim(); }
+      const conto = msg.match(/7\/1\/1\/CONTO\s+(\d+)/i) || msg.match(/7\/1\/1\/Conto\s+(\d+)/i);
+      if(conto){ header.conto = conto[1]; }
+      const total = msg.match(/7\/1\/2\/TOTAL\s+([\d\.,]+)/);
+      if(total){ header.total = parseAmount(total[1]); }
+      const docId = msg.match(/7\/1\/1\/(\d{8})/);
+      if(docId){ header.docId = docId[1]; }
+
+      // elimina riga
+      const elim = msg.match(/ELIMINA RIGA\s+(.+)/i);
+      if(elim){
+        events.push(ev(ts, currentOperator, 'Elimina riga', null, `Riga: ${elim[1].trim()}`));
+      }
+
+      // annulla specifico conto
+      const annCnt = msg.match(/AVVIATA PROCEDURA RIMOZIONE PRODOTTI AL CONTO\s+(\d+)/i);
+      if(annCnt){
+        events.push(ev(ts, currentOperator, 'Annulla conto', null, `Conto ${annCnt[1]}`));
+        continue;
+      }
+
+      // annulla tutti i conti
+      if(/ANNULLA TUTTI I CONTI APERTI/i.test(msg)){
+        events.push(ev(ts, currentOperator, 'Annulla tutti i conti', null, 'Tutti i conti aperti'));
+        continue;
+      }
+
+      // avvio pagamento contanti (per scontrino fiscale)
+      const pay = msg.match(/AVVIO PAGAMENTO CONTANTI\s*-\s*Totale\s*([\d\.,]+)/i);
+      if(pay){ lastPaymentTotal = parseAmount(pay[1]); }
+
+      // stampa scontrino
+      const printSc = msg.match(/AVVIATA STAMPA SCONTRINO.*?EURO\s*([\d\.,]+)/i);
+      if(printSc){
+        const amount = parseAmount(printSc[1]) ?? lastPaymentTotal ?? null;
+        events.push(ev(ts, currentOperator, 'Scontrino fiscale', amount, headerNote(header)));
+        header = resetHeader(); lastPaymentTotal = null;
+        continue;
+      }
+
+      // documento di annullo
+      if(/SF20\s*-\s*SENT COMMAND\s*\+\//.test(msg)){
+        const amount = lastPaymentTotal; // best-effort
+        events.push(ev(ts, currentOperator, 'Documento di annullo', amount, 'Annullo documento fiscale'));
+        continue;
+      }
+
+      // letture / chiusure
+      if(/x\/1\/{3}01/.test(msg)){
+        events.push(ev(ts, currentOperator, 'Lettura parziale (X)', null, 'Riepilogo giornata senza chiusura'));
+        continue;
+      }
+      if(/CLICCATO TASTO CHIUSURA FISCALE/i.test(msg) || /x\/7\/{3}07/.test(msg)){
+        events.push(ev(ts, currentOperator, 'Chiusura fiscale (Z)', null, 'Chiusura giornaliera'));
+        continue;
+      }
+
+      // chiusura documento gestionale non fiscale
+      if(/\sm\/.+/.test(msg)){
+        // decide preconto vs movimento gestionale in base al contesto
+        const isTav = header.tavolo && !/BANCO/i.test(header.tavolo);
+        const type = isTav ? 'Preconto sospeso' : 'Movimento gestionale (non fiscale)';
+        events.push(ev(ts, currentOperator, type, header.total ?? null, headerNote(header)));
+        header = resetHeader();
+        continue;
+      }
+
+    }
+
+    return {events, metaInfo: {lines: lines.length, events: events.length}};
+  }
+
+  function headerNote(h){
+    const parts = [];
+    if(h.tavolo) parts.push(`Tavolo: ${h.tavolo}`);
+    if(h.sala) parts.push(`Sala: ${h.sala}`);
+    if(h.conto) parts.push(`Conto: ${h.conto}`);
+    if(h.docId) parts.push(`Doc: ${h.docId}`);
+    return parts.join(' · ');
+  }
+
+  function resetHeader(){
+    return { tavolo:null, sala:null, conto:null, total:null, docId:null };
+  }
+
+  function ev(ts, operator, type, amount, note){
+    return { ts, operator: operator || 'Sconosciuto', type, amount: amount ?? null, note: note || '' };
+  }
+
+  function parseAmount(s){
+    if(s==null) return null;
+    const x = String(s).replace(/\./g,'').replace(/,/g,'.');
+    const n = parseFloat(x);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function sumBy(arr, key){
+    return arr.reduce((acc,o)=> acc + (o[key]||0), 0);
+  }
+  function groupBy(arr, fn){
+    return arr.reduce((acc,o)=>{ const k = fn(o); (acc[k]||(acc[k]=[])).push(o); return acc; }, {});
+  }
+  function fmtMoney(n){
+    if(n==null || !Number.isFinite(n)) return '';
+    return '€ ' + fmtMoneyNum(n);
+  }
+  function fmtMoneyNum(n){
+    return n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function debounce(fn, ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+  function toCSV(rows){
+    const cols = ['ts','operator','type','amount','note'];
+    const head = cols.join(';');
+    const body = rows.map(r=> cols.map(c=> csvCell(r[c])).join(';')).join('\n');
+    return head+'\n'+body;
+  }
+  function csvCell(v){ if(v==null) return ''; const s=String(v).replace(/"/g,'""'); return '"'+s+'"'; }
+
+})();
+</script>
+</body>
+</html>
