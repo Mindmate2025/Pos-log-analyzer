@@ -14,7 +14,6 @@
     h1{margin:0;font-size:20px;letter-spacing:.2px}
     main{display:grid;grid-template-columns:350px 1fr;gap:24px;align-items:start;padding:16px;max-width:1400px;margin:0 auto}
     @media (max-width:1200px){main{grid-template-columns:1fr;gap:16px}}
-    @media (min-width:1600px){main{grid-template-columns:400px 1fr;gap:32px}}
     .card{background:linear-gradient(180deg,#0f172a,#0b1220);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 30px #00000055}
     .card h2{font-size:16px;margin:0 0 8px 0;color:#dbeafe}
     .card .body{padding:14px}
@@ -26,14 +25,13 @@
     .chip{background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px;display:inline-flex;gap:8px;align-items:center}
     .chip input{accent-color:var(--accent)}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#0b1324;color:#cbd5e1;cursor:pointer;text-decoration:none}
-    .btn.primary{background:#0b3a73;border-color:#1e40af;color:#ffffff}
+    .btn.primary{background:#2563eb;border-color:#1d4ed8;color:#ffffff !important}
     .btn.small{padding:6px 8px;font-size:11px}
-    .btn:disabled{opacity:.5;cursor:not-allowed}
     .meta{display:flex;flex-wrap:wrap;gap:8px;color:#a3a3a3;font-size:12px}
     .meta .tag{background:#0b1324;border:1px solid var(--border);padding:4px 8px;border-radius:999px}
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px 8px;border-bottom:1px solid #1f2937;font-size:13px}
-    th{color:#cbd5e1;text-align:left;position:sticky;top:0;background:#0f172a;z-index:1}
+    th{color:#cbd5e1;text-align:left}
     tbody tr:hover{background:#0d1528}
     .kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
     .kpi .box{background:#0b1324;border:1px solid var(--border);padding:12px;border-radius:14px}
@@ -41,26 +39,46 @@
     .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--border);font-size:11px}
     .pill.ok{color:#10b981;border-color:#10b98122;background:#10b98111}
     .pill.bad{color:#ef4444;border-color:#ef444422;background:#ef444411}
-    footer{padding:20px;color:#94a3b8;text-align:center}
     .hide{display:none}
     .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:12px}
     .tab{padding:8px 16px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted)}
     .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-    .comparison-card{background:#0b1324;border:1px solid var(--border);padding:16px;border-radius:12px}
-    .comparison-card h3{margin:0 0 12px 0;font-size:14px;color:#cbd5e1}
-    .metric-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .day-item {padding: 6px 10px;margin: 2px 0;background: #0b1220;border: 1px solid var(--border);border-radius: 6px;cursor: pointer;font-size: 12px;display: flex;justify-content: space-between;align-items: center;}
-    .day-item:hover {background: #0d1528;border-color: #475569;}
-    .day-item.selected {background: #0b3a73;border-color: var(--accent);color: #ffffff;}
-    .day-item .day-stats {font-size: 10px;color: var(--muted);}
-    .day-item.selected .day-stats {color: #cbd5e1;}
-    .timeline-item {display: flex;align-items: center;padding: 8px;margin: 4px 0;background: #0b1220;border: 1px solid var(--border);border-radius: 8px;font-size: 12px;}
-    .timeline-time {width: 60px;font-weight: 600;color: var(--accent);flex-shrink: 0;}
-    .timeline-content {flex: 1;margin-left: 12px;}
-    .timeline-operator {color: var(--muted);font-size: 11px;}
-    .hourly-bar {background: var(--accent);height: 4px;border-radius: 2px;margin-top: 2px;}
-    .daily-grid {display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start;}
-    @media (max-width: 1000px) {.daily-grid { grid-template-columns: 1fr !important; }}
+    
+    /* PERIODO BOX STYLES */
+    .periodo-box {
+      background: #0b1324;
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+    .periodo-label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .periodo-dates {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .periodo-dates input {
+      flex: 1;
+    }
+    .periodo-dates span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .apply-button {
+      width: 100%;
+      justify-content: center;
+      background: #2563eb !important;
+      border-color: #1d4ed8 !important;
+      color: #ffffff !important;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -80,14 +98,14 @@
         <hr style="border-color:#1f2937;margin:14px 0;">
         
         <h2>2) Selezione Periodo</h2>
-        <div style="background: #0b1324; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-top: 8px;">
-          <label style="display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px;">Filtra per Periodo</label>
-          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
-            <input type="date" id="period1Start" style="flex: 1;">
-            <span style="color:var(--muted);font-size:11px">→</span>
-            <input type="date" id="period1End" style="flex: 1;">
+        <div class="periodo-box">
+          <label class="periodo-label">Filtra per Periodo</label>
+          <div class="periodo-dates">
+            <input type="date" id="period1Start">
+            <span>→</span>
+            <input type="date" id="period1End">
           </div>
-          <button id="btnApplyPeriod" class="btn primary" style="width: 100%; justify-content: center;">Applica Filtro</button>
+          <button id="btnApplyPeriod" class="btn apply-button">APPLICA FILTRO</button>
         </div>
         <div style="margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap;">
           <button class="btn small" onclick="setQuickRange('today')">Oggi</button>
@@ -117,7 +135,6 @@
       <div class="body">
         <div class="tabs">
           <div class="tab active" onclick="switchTab('overview')">Panoramica</div>
-          <div class="tab" onclick="switchTab('daily')">Analisi Giornaliera</div>
           <div class="tab" onclick="switchTab('details')">Dettagli</div>
         </div>
 
@@ -131,50 +148,6 @@
           </div>
           <div style="margin-top:12px">
             <div class="meta" id="statsOperators"></div>
-          </div>
-        </div>
-
-        <div id="dailyTab" class="hide">
-          <h2>Analisi Giornaliera</h2>
-          <div class="daily-grid">
-            <div style="background: #0b1324; border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 300px;">
-              <h3 style="margin: 0 0 12px 0; font-size: 14px; color: #cbd5e1;">Seleziona Giorno</h3>
-              <input type="date" id="dailyDatePicker" style="width: 100%; padding: 10px 12px; background: #0b1220; color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px;">
-              <div id="availableDays" style="max-height: 250px; overflow-y: auto;">
-                <h4 style="margin: 12px 0 8px 0; font-size: 12px; color: var(--muted);">Giorni Disponibili:</h4>
-                <div id="daysList"></div>
-              </div>
-            </div>
-            <div style="min-width: 0;">
-              <div id="dailyStats">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 16px;">
-                  <div class="comparison-card">
-                    <h3>Statistiche del Giorno</h3>
-                    <div class="metric-row"><span>Data:</span><strong id="selectedDateDisplay">-</strong></div>
-                    <div class="metric-row"><span>Eventi Totali:</span><strong id="dailyEventsCount">0</strong></div>
-                    <div class="metric-row"><span>Scontrini:</span><strong id="dailyScontrini">€ 0,00</strong></div>
-                    <div class="metric-row"><span>Mov. Gestionali:</span><strong id="dailyGestionali">€ 0,00</strong></div>
-                    <div class="metric-row"><span>Preconti:</span><strong id="dailyPreconti">€ 0,00</strong></div>
-                  </div>
-                  <div class="comparison-card">
-                    <h3>Distribuzione Oraria</h3>
-                    <div id="hourlyDistribution" style="font-size: 11px; max-height: 150px; overflow-y: auto;">
-                      <div style="color: var(--muted); text-align: center; padding: 20px;">Seleziona un giorno</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="comparison-card" style="margin-bottom: 16px;">
-                  <h3>Performance Operatori</h3>
-                  <div id="dailyOperators"></div>
-                </div>
-                <div class="comparison-card">
-                  <h3>Timeline del Giorno</h3>
-                  <div id="dailyTimeline" style="max-height: 300px; overflow-y: auto;">
-                    <div style="color: var(--muted); text-align: center; padding: 20px;">Seleziona un giorno per vedere la timeline</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -192,7 +165,6 @@
       </div>
     </section>
   </main>
-  <footer>Suggerimento: seleziona più operatori tenendo premuto Ctrl/⌘. Usa i preset rapidi per analisi temporali.</footer>
 
 <script>
 (function(){
@@ -212,32 +184,21 @@
   const statsOperators = document.getElementById('statsOperators');
   const period1Start = document.getElementById('period1Start');
   const period1End = document.getElementById('period1End');
-  const dailyDatePicker = document.getElementById('dailyDatePicker');
-  const daysList = document.getElementById('daysList');
-  const selectedDateDisplay = document.getElementById('selectedDateDisplay');
-  const dailyEventsCount = document.getElementById('dailyEventsCount');
-  const dailyScontrini = document.getElementById('dailyScontrini');
-  const dailyGestionali = document.getElementById('dailyGestionali');
-  const dailyPreconti = document.getElementById('dailyPreconti');
-  const dailyOperators = document.getElementById('dailyOperators');
-  const dailyTimeline = document.getElementById('dailyTimeline');
-  const hourlyDistribution = document.getElementById('hourlyDistribution');
+  const btnApplyPeriod = document.getElementById('btnApplyPeriod');
 
   let allEvents = [];
   let allTypes = new Set();
   let allOperators = new Set();
   let currentTab = 'overview';
-  let selectedDay = null;
+
+  // Setup del pulsante applica filtro
+  btnApplyPeriod.onclick = function() {
+    console.log('Filtro applicato!');
+    render();
+  };
 
   function formatDate(date) {
     return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-  }
-
-  function formatDisplayDate(dateStr) {
-    const date = new Date(dateStr + 'T00:00:00');
-    const days = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-    const months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
-    return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
   }
 
   function sumBy(arr, key){ return arr.reduce((acc,o)=> acc + (o[key]||0), 0); }
@@ -248,130 +209,14 @@
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
   function pillClass(type){ if(type.includes('Annulla')||type.includes('Annullo')) return 'bad'; if(type.includes('Scontrino')||type.includes('Movimento')||type.includes('Preconto')) return 'ok'; return ''; }
 
-  function renderDailyAnalysis() {
-    if (!allEvents.length) return;
-    const uniqueDays = [...new Set(allEvents.map(e => e.ts.split(' ')[0]))].sort();
-    if (daysList) {
-      daysList.innerHTML = '';
-      uniqueDays.forEach(day => {
-        const dayEvents = getEventsForDay(day);
-        const dayStats = calculateDayStats(dayEvents);
-        const dayItem = document.createElement('div');
-        dayItem.className = 'day-item';
-        if (day === selectedDay) dayItem.classList.add('selected');
-        dayItem.innerHTML = `<div><div style="font-weight: 600;">${formatDisplayDate(day)}</div><div class="day-stats">${dayEvents.length} eventi</div></div><div class="day-stats">€${fmtMoneyNum(dayStats.total)}</div>`;
-        dayItem.addEventListener('click', () => selectDay(day));
-        daysList.appendChild(dayItem);
-      });
-      if (!selectedDay && uniqueDays.length > 0) { selectDay(uniqueDays[uniqueDays.length - 1]); }
-      if (selectedDay && dailyDatePicker) { dailyDatePicker.value = selectedDay; }
-    }
-  }
-
-  function selectDay(day) {
-    selectedDay = day;
-    if (dailyDatePicker) { dailyDatePicker.value = day; }
-    document.querySelectorAll('.day-item').forEach(item => { item.classList.remove('selected'); });
-    document.querySelectorAll('.day-item').forEach((item, index) => {
-      const uniqueDays = [...new Set(allEvents.map(e => e.ts.split(' ')[0]))].sort();
-      if (uniqueDays[index] === day) { item.classList.add('selected'); }
-    });
-    renderDayDetails(day);
-  }
-
-  function renderDayDetails(day) {
-    const dayEvents = getEventsForDay(day);
-    const dayStats = calculateDayStats(dayEvents);
-    if (selectedDateDisplay) selectedDateDisplay.textContent = formatDisplayDate(day);
-    if (dailyEventsCount) dailyEventsCount.textContent = dayEvents.length;
-    if (dailyScontrini) dailyScontrini.textContent = fmtMoney(dayStats.scontrini);
-    if (dailyGestionali) dailyGestionali.textContent = fmtMoney(dayStats.gestionali);
-    if (dailyPreconti) dailyPreconti.textContent = fmtMoney(dayStats.preconti);
-    renderHourlyDistribution(dayEvents);
-    renderDailyOperators(dayEvents);
-    renderDailyTimeline(dayEvents);
-  }
-
-  function renderHourlyDistribution(events) {
-    if (!hourlyDistribution) return;
-    const hourlyStats = {};
-    for (let i = 0; i < 24; i++) { hourlyStats[i] = { count: 0, amount: 0 }; }
-    events.forEach(event => {
-      const hour = parseInt(event.ts.split(' ')[1].split(':')[0]);
-      hourlyStats[hour].count++;
-      hourlyStats[hour].amount += event.amount || 0;
-    });
-    const maxCount = Math.max(...Object.values(hourlyStats).map(h => h.count));
-    hourlyDistribution.innerHTML = '';
-    Object.entries(hourlyStats).forEach(([hour, stats]) => {
-      if (stats.count === 0) return;
-      const barWidth = maxCount > 0 ? (stats.count / maxCount) * 100 : 0;
-      const item = document.createElement('div');
-      item.style.marginBottom = '4px';
-      item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;"><span>${hour.padStart(2, '0')}:00</span><span>${stats.count} eventi</span><span>€${fmtMoneyNum(stats.amount)}</span></div><div class="hourly-bar" style="width: ${barWidth}%"></div>`;
-      hourlyDistribution.appendChild(item);
-    });
-  }
-
-  function renderDailyOperators(events) {
-    if (!dailyOperators) return;
-    const operatorStats = {};
-    events.forEach(event => {
-      const op = event.operator || 'Sconosciuto';
-      if (!operatorStats[op]) { operatorStats[op] = { count: 0, amount: 0, types: {} }; }
-      operatorStats[op].count++;
-      operatorStats[op].amount += event.amount || 0;
-      const type = event.type;
-      operatorStats[op].types[type] = (operatorStats[op].types[type] || 0) + 1;
-    });
-    dailyOperators.innerHTML = '';
-    Object.entries(operatorStats).sort(([,a], [,b]) => b.count - a.count).forEach(([op, stats]) => {
-      const typesList = Object.entries(stats.types).map(([type, count]) => `${type}: ${count}`).join(' • ');
-      const opDiv = document.createElement('div');
-      opDiv.style.marginBottom = '8px';
-      opDiv.style.padding = '8px';
-      opDiv.style.background = '#0b1220';
-      opDiv.style.border = '1px solid var(--border)';
-      opDiv.style.borderRadius = '6px';
-      opDiv.style.fontSize = '12px';
-      opDiv.innerHTML = `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;"><strong>${escapeHtml(op)}</strong><span>${stats.count} eventi • €${fmtMoneyNum(stats.amount)}</span></div><div style="color: var(--muted); font-size: 11px;">${typesList}</div>`;
-      dailyOperators.appendChild(opDiv);
-    });
-  }
-
-  function renderDailyTimeline(events) {
-    if (!dailyTimeline) return;
-    const sortedEvents = [...events].sort((a, b) => a.ts.localeCompare(b.ts));
-    dailyTimeline.innerHTML = '';
-    sortedEvents.forEach(event => {
-      const time = event.ts.split(' ')[1].substring(0, 5);
-      const item = document.createElement('div');
-      item.className = 'timeline-item';
-      item.innerHTML = `<div class="timeline-time">${time}</div><div class="timeline-content"><div style="display: flex; justify-content: space-between; align-items: center;"><span class="pill ${pillClass(event.type)}">${escapeHtml(event.type)}</span><span style="font-weight: 600;">${fmtMoney(event.amount)}</span></div><div class="timeline-operator">${escapeHtml(event.operator || 'Sconosciuto')} • ${escapeHtml(event.note || '')}</div></div>`;
-      dailyTimeline.appendChild(item);
-    });
-    if (sortedEvents.length === 0) { dailyTimeline.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 20px;">Nessun evento per questo giorno</div>'; }
-  }
-
-  function getEventsForDay(day) { return getFiltered().filter(event => event.ts.startsWith(day)); }
-
-  function calculateDayStats(events) {
-    return {
-      scontrini: sumBy(events.filter(e => e.type === 'Scontrino fiscale'), 'amount'),
-      gestionali: sumBy(events.filter(e => e.type === 'Movimento gestionale (non fiscale)'), 'amount'),
-      preconti: sumBy(events.filter(e => e.type === 'Preconto sospeso'), 'amount'),
-      total: sumBy(events, 'amount')
-    };
-  }
-
   window.switchTab = function(tab) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('[id$="Tab"]').forEach(t => t.classList.add('hide'));
-    const tabIndex = tab === 'overview' ? 1 : tab === 'daily' ? 2 : 3;
+    const tabIndex = tab === 'overview' ? 1 : 2;
     document.querySelector(`.tab:nth-child(${tabIndex})`).classList.add('active');
     document.getElementById(tab + 'Tab').classList.remove('hide');
     currentTab = tab;
-    if (tab === 'daily') { renderDailyAnalysis(); } else if (tab === 'details') { render(); }
+    if (tab === 'details') { render(); }
   };
 
   window.setQuickRange = function(type) {
@@ -414,7 +259,6 @@
       renderMeta(metaInfo, file.name);
       renderFilters();
       setDefaultDateRange();
-      renderDailyAnalysis();
       render();
     };
     reader.readAsText(file);
@@ -427,12 +271,6 @@
     const maxDate = dates[dates.length - 1];
     period1Start.value = minDate;
     period1End.value = maxDate;
-  }
-
-  if (dailyDatePicker) {
-    dailyDatePicker.addEventListener('change', () => {
-      if (dailyDatePicker.value) { selectDay(dailyDatePicker.value); }
-    });
   }
 
   function renderMeta(metaInfo, fileName){
@@ -472,11 +310,6 @@
 
     operatorSelect.addEventListener('change', render);
     searchInput.addEventListener('input', debounce(render, 200));
-    
-    const applyBtn = document.getElementById('btnApplyPeriod');
-    if (applyBtn) {
-      applyBtn.onclick = () => { render(); };
-    }
     
     btnReset.onclick = ()=>{
       [...typeChips.querySelectorAll('input[type="checkbox"]')].forEach(cb=> cb.checked = true);
@@ -551,8 +384,6 @@
         statsOperators.appendChild(tag);
       });
     }
-
-    if (currentTab === 'daily') { renderDailyAnalysis(); }
   }
 
   function parseLog(text){
