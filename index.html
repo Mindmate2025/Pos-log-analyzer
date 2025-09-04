@@ -343,6 +343,11 @@
     const activeTypes = getActiveTypes();
     const selectedOps = getSelectedOperators();
     const term = searchInput.value.trim().toLowerCase();
+    
+    // Filtro per periodo
+    const startDate = period1Start.value;
+    const endDate = period1End.value;
+    
     return allEvents.filter(e=>{
       if(!activeTypes.has(e.type)) return false;
       if(!selectedOps.has(e.operator || 'Sconosciuto')) return false;
@@ -350,6 +355,15 @@
         const hay = `${e.type} ${e.operator||''} ${e.note||''}`.toLowerCase();
         if(!hay.includes(term)) return false;
       }
+      
+      // Applica filtro periodo se le date sono impostate
+      if(startDate && endDate) {
+        const eventDate = e.ts.split(' ')[0]; // Estrae solo la data (YYYY-MM-DD)
+        if(eventDate < startDate || eventDate > endDate) {
+          return false;
+        }
+      }
+      
       return true;
     });
   }
