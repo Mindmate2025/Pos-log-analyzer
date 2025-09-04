@@ -59,7 +59,8 @@
     .metric-change.positive{color:var(--ok)}
     .metric-change.negative{color:var(--bad)}
     .metric-change.neutral{color:var(--muted)}
-    .date-range{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+    .date-range{display:flex;gap:8px;align-items:center}
+    .date-range input[type="date"]{flex:1}
     .range-presets{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
     
     /* Daily analysis styles */
@@ -125,7 +126,7 @@
 </head>
 <body>
   <header>
-    <h1>CASH REGISTER - POS Log Analyzer v2.0 • Importa, filtra e confronta periodi</h1>
+    <h1>CASH REGISTER - POS Log Analyzer v2.0 • Importa, filtra e analizza</h1>
   </header>
   <main>
     <!-- Left: Controls -->
@@ -620,15 +621,13 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('[id$="Tab"]').forEach(t => t.classList.add('hide'));
     
-    const tabIndex = tab === 'overview' ? 1 : tab === 'daily' ? 2 : tab === 'comparison' ? 3 : 4;
+    const tabIndex = tab === 'overview' ? 1 : tab === 'daily' ? 2 : 3;
     document.querySelector(`.tab:nth-child(${tabIndex})`).classList.add('active');
     document.getElementById(tab + 'Tab').classList.remove('hide');
     currentTab = tab;
     
     if (tab === 'daily') {
       renderDailyAnalysis();
-    } else if (tab === 'comparison') {
-      renderComparison();
     } else if (tab === 'details') {
       render();
     }
