@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>POS Log Analyzer v2.0</title>
+  <title>CASH REGISTER - POS Log Analyzer v2.0</title>
   <style>
     :root{
       --bg:#0b1220;--panel:#0f172a;--muted:#94a3b8;--text:#e5e7eb;--accent:#60a5fa;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444;--chip:#1f2937;--border:#334155;
@@ -12,21 +12,22 @@
     body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(160deg,#0b1220 0%,#111827 100%);color:var(--text)}
     header{position:sticky;top:0;padding:16px;border-bottom:1px solid var(--border);backdrop-filter:blur(8px);background:linear-gradient(160deg,#0b1220ee,#111827ee)}
     h1{margin:0;font-size:20px;letter-spacing:.2px}
-    main{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start;padding:16px}
-    @media (max-width:1200px){main{grid-template-columns:1fr}}
+    main{display:grid;grid-template-columns:350px 1fr;gap:24px;align-items:start;padding:16px;max-width:1400px;margin:0 auto}
+    @media (max-width:1200px){main{grid-template-columns:1fr;gap:16px}}
+    @media (min-width:1600px){main{grid-template-columns:400px 1fr;gap:32px}}
     .card{background:linear-gradient(180deg,#0f172a,#0b1220);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 30px #00000055}
     .card h2{font-size:16px;margin:0 0 8px 0;color:#dbeafe}
     .card .body{padding:14px}
     .drop{border:1px dashed #475569;border-radius:14px;padding:14px;text-align:center;color:var(--muted);cursor:pointer}
     .drop:hover{border-color:#64748b;color:#cbd5e1}
     .controls label{display:block;font-size:12px;color:var(--muted);margin-top:10px}
-    .controls input[type="text"], .controls select, .controls input[type="date"]{width:100%;padding:10px 12px;background:#0b1324;color:var(--text);border:1px solid var(--border);border-radius:12px;outline:none}
+    .controls input[type="text"], .controls select, .controls input[type="date"]{width:100%;padding:10px 12px;background:#0b1324;color:var(--text);border:1px solid var(--border);border-radius:8px;outline:none}
     .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
     .chip{background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px;display:inline-flex;gap:8px;align-items:center}
     .chip input{accent-color:var(--accent)}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#0b1324;color:#cbd5e1;cursor:pointer;text-decoration:none}
     .btn.primary{background:#0b3a73;border-color:#1e40af}
-    .btn.small{padding:4px 6px;font-size:10px}
+    .btn.small{padding:6px 8px;font-size:11px}
     .btn:disabled{opacity:.5;cursor:not-allowed}
     .meta{display:flex;flex-wrap:wrap;gap:8px;color:#a3a3a3;font-size:12px}
     .meta .tag{background:#0b1324;border:1px solid var(--border);padding:4px 8px;border-radius:999px}
@@ -43,25 +44,12 @@
     footer{padding:20px;color:#94a3b8;text-align:center}
     .hide{display:none}
     
-    /* Period comparison styles */
-    .period-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-    .period-box{background:#0b1324;border:1px solid var(--border);padding:8px;border-radius:8px}
-    .period-box h4{margin:0 0 6px 0;font-size:12px;color:var(--muted)}
-    .period-box.active{border-color:var(--accent);background:#0b1f3a}
     .tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:12px}
     .tab{padding:8px 16px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted)}
     .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-    .comparison-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px}
     .comparison-card{background:#0b1324;border:1px solid var(--border);padding:16px;border-radius:12px}
     .comparison-card h3{margin:0 0 12px 0;font-size:14px;color:#cbd5e1}
     .metric-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .metric-change{font-size:12px;font-weight:600}
-    .metric-change.positive{color:var(--ok)}
-    .metric-change.negative{color:var(--bad)}
-    .metric-change.neutral{color:var(--muted)}
-    .date-range{display:flex;gap:8px;align-items:center}
-    .date-range input[type="date"]{flex:1}
-    .range-presets{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
     
     /* Daily analysis styles */
     .day-item {
@@ -122,6 +110,15 @@
       border-radius: 2px;
       margin-top: 2px;
     }
+    .daily-grid {
+      display: grid; 
+      grid-template-columns: 320px 1fr; 
+      gap: 20px; 
+      align-items: start;
+    }
+    @media (max-width: 1000px) {
+      .daily-grid { grid-template-columns: 1fr !important; }
+    }
   </style>
 </head>
 <body>
@@ -141,29 +138,19 @@
         
         <hr style="border-color:#1f2937;margin:14px 0;">
         
-        <h2>2) Selezione Periodi</h2>
-        <div class="period-selector">
-          <div class="period-box" id="period1Box">
-            <h4>Periodo 1</h4>
-            <div class="date-range">
-              <input type="date" id="period1Start">
-              <span style="color:var(--muted);font-size:11px">→</span>
-              <input type="date" id="period1End">
-            </div>
-          </div>
-          <div class="period-box" id="period2Box">
-            <h4>Periodo 2</h4>
-            <div class="date-range">
-              <input type="date" id="period2Start">
-              <span style="color:var(--muted);font-size:11px">→</span>
-              <input type="date" id="period2End">
-            </div>
+        <h2>2) Selezione Periodo</h2>
+        <div style="background: #0b1324; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-top: 8px;">
+          <label style="display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px;">Filtra per Periodo</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="date" id="period1Start" style="flex: 1;">
+            <span style="color:var(--muted);font-size:11px">→</span>
+            <input type="date" id="period1End" style="flex: 1;">
           </div>
         </div>
-        <div class="range-presets">
-          <button class="btn small" onclick="setQuickRange('today')">Oggi vs Ieri</button>
-          <button class="btn small" onclick="setQuickRange('week')">Questa vs Scorsa Settimana</button>
-          <button class="btn small" onclick="setQuickRange('month')">Questo vs Scorso Mese</button>
+        <div style="margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap;">
+          <button class="btn small" onclick="setQuickRange('today')">Oggi</button>
+          <button class="btn small" onclick="setQuickRange('week')">Questa Settimana</button>
+          <button class="btn small" onclick="setQuickRange('month')">Questo Mese</button>
         </div>
         
         <hr style="border-color:#1f2937;margin:14px 0;">
@@ -190,7 +177,6 @@
         <div class="tabs">
           <div class="tab active" onclick="switchTab('overview')">Panoramica</div>
           <div class="tab" onclick="switchTab('daily')">Analisi Giornaliera</div>
-          <div class="tab" onclick="switchTab('comparison')">Confronto Periodi</div>
           <div class="tab" onclick="switchTab('details')">Dettagli</div>
         </div>
 
@@ -211,30 +197,22 @@
         <!-- Daily Analysis Tab -->
         <div id="dailyTab" class="hide">
           <h2>Analisi Giornaliera</h2>
-          <div style="display: grid; grid-template-columns: 300px 1fr; gap: 16px; align-items: start;">
+          <div class="daily-grid">
             <!-- Calendar and Day Selector -->
-            <div style="background: #0b1324; border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+            <div style="background: #0b1324; border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 300px;">
               <h3 style="margin: 0 0 12px 0; font-size: 14px; color: #cbd5e1;">Seleziona Giorno</h3>
               <input type="date" id="dailyDatePicker" style="width: 100%; padding: 10px 12px; background: #0b1220; color: var(--text); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px;">
               
-              <div id="availableDays" style="max-height: 200px; overflow-y: auto;">
+              <div id="availableDays" style="max-height: 250px; overflow-y: auto;">
                 <h4 style="margin: 12px 0 8px 0; font-size: 12px; color: var(--muted);">Giorni Disponibili:</h4>
                 <div id="daysList"></div>
-              </div>
-              
-              <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
-                <h4 style="margin: 0 0 8px 0; font-size: 12px; color: var(--muted);">Confronto Rapido:</h4>
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                  <button class="btn small" onclick="compareDailyWithPrevious()">vs Giorno Precedente</button>
-                  <button class="btn small" onclick="compareDailyWithWeek()">vs Settimana Scorsa</button>
-                </div>
               </div>
             </div>
             
             <!-- Daily Stats -->
-            <div>
+            <div style="min-width: 0;">
               <div id="dailyStats">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 16px;">
                   <div class="comparison-card">
                     <h3>Statistiche del Giorno</h3>
                     <div class="metric-row">
@@ -285,15 +263,6 @@
           </div>
         </div>
 
-        <!-- Comparison Tab -->
-        <div id="comparisonTab" class="hide">
-          <h2>Confronto tra Periodi</h2>
-          <div id="comparisonContent">
-            <div class="comparison-grid" id="comparisonGrid"></div>
-            <div id="comparisonDetails"></div>
-          </div>
-        </div>
-
         <!-- Details Tab -->
         <div id="detailsTab" class="hide">
           <h2>Dettagli Transazioni</h2>
@@ -316,7 +285,7 @@
     </section>
   </main>
   <footer>
-    Suggerimento: seleziona più operatori tenendo premuto Ctrl/⌘. Usa i preset rapidi per confronti comuni.
+    Suggerimento: seleziona più operatori tenendo premuto Ctrl/⌘. Usa i preset rapidi per analisi temporali.
   </footer>
 
 <script>
@@ -338,13 +307,9 @@
   const kpiPreconti = document.getElementById('kpiPreconti');
   const statsOperators = document.getElementById('statsOperators');
 
-  // Period comparison elements
+  // Period elements
   const period1Start = document.getElementById('period1Start');
   const period1End = document.getElementById('period1End');
-  const period2Start = document.getElementById('period2Start');
-  const period2End = document.getElementById('period2End');
-  const comparisonGrid = document.getElementById('comparisonGrid');
-  const comparisonDetails = document.getElementById('comparisonDetails');
 
   // Daily analysis elements
   const dailyDatePicker = document.getElementById('dailyDatePicker');
@@ -636,187 +601,28 @@
   // ---- Quick Range Presets ----
   window.setQuickRange = function(type) {
     const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
     
     if (type === 'today') {
       period1Start.value = formatDate(today);
       period1End.value = formatDate(today);
-      period2Start.value = formatDate(yesterday);
-      period2End.value = formatDate(yesterday);
     } else if (type === 'week') {
       const thisWeekStart = new Date(today);
       thisWeekStart.setDate(today.getDate() - today.getDay());
       const thisWeekEnd = new Date(thisWeekStart);
       thisWeekEnd.setDate(thisWeekStart.getDate() + 6);
       
-      const lastWeekStart = new Date(thisWeekStart);
-      lastWeekStart.setDate(thisWeekStart.getDate() - 7);
-      const lastWeekEnd = new Date(lastWeekStart);
-      lastWeekEnd.setDate(lastWeekStart.getDate() + 6);
-      
       period1Start.value = formatDate(thisWeekStart);
       period1End.value = formatDate(thisWeekEnd);
-      period2Start.value = formatDate(lastWeekStart);
-      period2End.value = formatDate(lastWeekEnd);
     } else if (type === 'month') {
       const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
       const thisMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
       
-      const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-      const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-      
       period1Start.value = formatDate(thisMonthStart);
       period1End.value = formatDate(thisMonthEnd);
-      period2Start.value = formatDate(lastMonthStart);
-      period2End.value = formatDate(lastMonthEnd);
     }
     
-    if (currentTab === 'comparison') {
-      renderComparison();
-    }
+    render(); // Update the view
   };
-
-  // Daily comparison functions
-  window.compareDailyWithPrevious = function() {
-    if (!selectedDay) return;
-    const currentDate = new Date(selectedDay);
-    const previousDate = new Date(currentDate);
-    previousDate.setDate(previousDate.getDate() - 1);
-    
-    period1Start.value = selectedDay;
-    period1End.value = selectedDay;
-    period2Start.value = formatDate(previousDate);
-    period2End.value = formatDate(previousDate);
-    
-    switchTab('comparison');
-  };
-
-  window.compareDailyWithWeek = function() {
-    if (!selectedDay) return;
-    const currentDate = new Date(selectedDay);
-    const weekAgoDate = new Date(currentDate);
-    weekAgoDate.setDate(weekAgoDate.getDate() - 7);
-    
-    period1Start.value = selectedDay;
-    period1End.value = selectedDay;
-    period2Start.value = formatDate(weekAgoDate);
-    period2End.value = formatDate(weekAgoDate);
-    
-    switchTab('comparison');
-  };
-
-  // ---- Period Filtering ----
-  function getEventsInPeriod(startDate, endDate) {
-    if (!startDate || !endDate) return [];
-    
-    const start = new Date(startDate + 'T00:00:00');
-    const end = new Date(endDate + 'T23:59:59');
-    
-    return getFiltered().filter(event => {
-      const eventDate = new Date(event.ts);
-      return eventDate >= start && eventDate <= end;
-    });
-  }
-
-  function calculatePeriodStats(events) {
-    return {
-      totalEvents: events.length,
-      scontrini: sumBy(events.filter(e => e.type === 'Scontrino fiscale'), 'amount'),
-      gestionali: sumBy(events.filter(e => e.type === 'Movimento gestionale (non fiscale)'), 'amount'),
-      preconti: sumBy(events.filter(e => e.type === 'Preconto sospeso'), 'amount'),
-      operators: groupBy(events, e => e.operator || 'Sconosciuto'),
-      types: groupBy(events, e => e.type)
-    };
-  }
-
-  function renderComparison() {
-    if (!allEvents.length) {
-      comparisonGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--muted);">Carica un file log per vedere il confronto</div>';
-      return;
-    }
-
-    const period1Events = getEventsInPeriod(period1Start.value, period1End.value);
-    const period2Events = getEventsInPeriod(period2Start.value, period2End.value);
-    
-    const stats1 = calculatePeriodStats(period1Events);
-    const stats2 = calculatePeriodStats(period2Events);
-    
-    comparisonGrid.innerHTML = '';
-    
-    // Main metrics comparison
-    const metrics = [
-      { label: 'Eventi Totali', key: 'totalEvents', format: 'number' },
-      { label: 'Scontrini Fiscali', key: 'scontrini', format: 'currency' },
-      { label: 'Mov. Gestionali', key: 'gestionali', format: 'currency' },
-      { label: 'Preconti', key: 'preconti', format: 'currency' }
-    ];
-    
-    metrics.forEach(metric => {
-      const val1 = stats1[metric.key] || 0;
-      const val2 = stats2[metric.key] || 0;
-      const change = val2 !== 0 ? ((val1 - val2) / val2) * 100 : 0;
-      const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-      
-      const card = document.createElement('div');
-      card.className = 'comparison-card';
-      card.innerHTML = `
-        <h3>${metric.label}</h3>
-        <div class="metric-row">
-          <span>Periodo 1:</span>
-          <strong>${formatMetric(val1, metric.format)}</strong>
-        </div>
-        <div class="metric-row">
-          <span>Periodo 2:</span>
-          <strong>${formatMetric(val2, metric.format)}</strong>
-        </div>
-        <div class="metric-row">
-          <span>Variazione:</span>
-          <span class="metric-change ${changeClass}">
-            ${change > 0 ? '+' : ''}${change.toFixed(1)}%
-          </span>
-        </div>
-      `;
-      comparisonGrid.appendChild(card);
-    });
-    
-    // Operators comparison
-    const operatorCard = document.createElement('div');
-    operatorCard.className = 'comparison-card';
-    operatorCard.style.gridColumn = '1 / -1';
-    
-    let operatorHtml = '<h3>Confronto per Operatore</h3>';
-    const allOps = new Set([...Object.keys(stats1.operators), ...Object.keys(stats2.operators)]);
-    
-    operatorHtml += '<table style="width: 100%; margin-top: 8px;"><thead><tr><th>Operatore</th><th>Periodo 1</th><th>Periodo 2</th><th>Variazione</th></tr></thead><tbody>';
-    
-    Array.from(allOps).sort().forEach(op => {
-      const count1 = (stats1.operators[op] || []).length;
-      const count2 = (stats2.operators[op] || []).length;
-      const change = count2 !== 0 ? ((count1 - count2) / count2) * 100 : 0;
-      const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
-      
-      operatorHtml += `
-        <tr>
-          <td>${escapeHtml(op)}</td>
-          <td>${count1}</td>
-          <td>${count2}</td>
-          <td><span class="metric-change ${changeClass}">${change > 0 ? '+' : ''}${change.toFixed(1)}%</span></td>
-        </tr>
-      `;
-    });
-    
-    operatorHtml += '</tbody></table>';
-    operatorCard.innerHTML = operatorHtml;
-    comparisonGrid.appendChild(operatorCard);
-  }
-
-  function formatMetric(value, format) {
-    if (format === 'currency') {
-      return fmtMoney(value);
-    }
-    return String(value);
-  }
 
   // ---- File Handling ----
   drop.addEventListener('dragover', e=>{e.preventDefault(); drop.style.borderColor = '#93c5fd';});
@@ -857,30 +663,15 @@
     const minDate = dates[0];
     const maxDate = dates[dates.length - 1];
     
-    // Set period 1 to full range
+    // Set period to full range
     period1Start.value = minDate;
     period1End.value = maxDate;
-    
-    // Set period 2 to a previous period of same length if possible
-    const startDate = new Date(minDate);
-    const endDate = new Date(maxDate);
-    const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-    
-    const period2EndDate = new Date(startDate);
-    period2EndDate.setDate(period2EndDate.getDate() - 1);
-    const period2StartDate = new Date(period2EndDate);
-    period2StartDate.setDate(period2StartDate.getDate() - daysDiff);
-    
-    period2Start.value = formatDate(period2StartDate);
-    period2End.value = formatDate(period2EndDate);
   }
 
   // Add event listeners for period changes
-  [period1Start, period1End, period2Start, period2End].forEach(input => {
+  [period1Start, period1End].forEach(input => {
     input.addEventListener('change', () => {
-      if (currentTab === 'comparison') {
-        renderComparison();
-      }
+      render(); // Update all views when period changes
     });
   });
 
@@ -1021,10 +812,8 @@
       });
     }
 
-    // Update comparison if that tab is active
-    if (currentTab === 'comparison') {
-      renderComparison();
-    } else if (currentTab === 'daily') {
+    // Update daily analysis if that tab is active
+    if (currentTab === 'daily') {
       renderDailyAnalysis();
     }
   }
