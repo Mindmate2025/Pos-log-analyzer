@@ -668,12 +668,7 @@
     period1End.value = maxDate;
   }
 
-  // Add event listeners for period changes
-  [period1Start, period1End].forEach(input => {
-    input.addEventListener('change', () => {
-      render(); // Update all views when period changes
-    });
-  });
+  // Add event listeners for period changes - REMOVED to require button click
 
   // Add event listener for date picker
   if (dailyDatePicker) {
